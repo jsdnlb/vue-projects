@@ -6,6 +6,13 @@
 			<router-link to="/about">Acerca de</router-link>
 		</div>
 		<router-view />
+		<progress :value="UploadValue" max="100" id="uploader">0%</progress>
+		<br />
+		<input type="file" @change="onFileSelected" />
+		<br />
+		<button @click="onUpload">Subir Archivo</button>
+		<br />
+		<img width="40%" :src="this.picture" />
 	</div>
 </template>
 
