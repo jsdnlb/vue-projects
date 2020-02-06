@@ -6,8 +6,8 @@
 			<router-link to="/about">Acerca de</router-link>
 		</div>
 		<router-view />
-		<progress :value="uploadValue" max="100" id="uploader">0%</progress>
 		<br />
+
 		<input type="file" @change="onFileSelected" />
 		<br />
 		<button @click="onUpload">Subir Archivo</button>
@@ -18,13 +18,14 @@
 <script>
 import firebase from "firebase";
 import Swal from "sweetalert2";
+import Vue from "vue";
+import vuetify from "@/plugins/vuetify";
 
 export default {
 	name: "app",
 	data() {
 		return {
 			selectedFile: null,
-			uploadValue: 0,
 			picture: null
 		};
 	},
@@ -39,14 +40,26 @@ export default {
 			task.on(
 				"state_changed",
 				(snapshot) => {
-					/* let porcentaje = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-					this.uploadValue = porcentaje; */
+					let timerInterval;
+					Swal.fire({
+						title: "Se está subiendo el archivo",
+						html: "Por favor espere un momento mientras se actualiza la imagen.",
+						timerProgressBar: true,
+						onBeforeOpen: () => {
+							Swal.showLoading();
+						},
+						onClose: () => {
+							clearInterval(timerInterval);
+						}
+					}).then((result) => {
+						/* Read more about handling dismissals below */
+						if (result.dismiss === Swal.DismissReason.timer) {
+						}
+					});
 				},
 				(error) => {
 					console.log("error", error.message),
 						() => {
-							this.uploadValue = 100;
-
 							task.snapshot.ref.getDownloadURL().then((url) => {
 								this.picture = url;
 								console.log(this.picture);
@@ -58,7 +71,7 @@ export default {
 						icon: "success",
 						title: "Se ha subido la imagen correctamente.",
 						showConfirmButton: false,
-						timer: 1000,
+						timer: 1500,
 						onClose: () => {
 							location.reload();
 						}
@@ -69,25 +82,3 @@ export default {
 	}
 };
 </script>
-<style>
-#app {
-	font-family: "Avenir", Helvetica, Arial, sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
-	color: #2c3e50;
-}
-
-#nav {
-	padding: 30px;
-}
-
-#nav a {
-	font-weight: bold;
-	color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-	color: #42b983;
-}
-</style>
